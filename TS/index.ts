@@ -1,3 +1,8 @@
+interface backendEvent {
+	name: string;
+	data?: any;
+}
+
 interface domObject {
 	tag: string;
 	args?: args;
@@ -56,6 +61,10 @@ const WEB_RTC_PEER_CONSTRAINTS = {
 	}]
 };
 
+const clearArray = function (array:any[]) {
+	return array.splice(0, array.length);
+};
+
 const createElement = function (domObject:domObject) {
 	const element = document.createElement(domObject.tag);
 	if (domObject.args) {
@@ -79,11 +88,32 @@ const clearChilds = function (nodeName:string) {
 	node.textContent = "";
 };
 
+const encodeObjectAndAddID = function (data?:object) {
+	const form = {
+		data: [],
+		append(key:string,value:string) {
+			this.data.push(key + "=" + encodeURIComponent(value));
+		}
+	}
+	form.append("id", stats.id);
+	if (data) {
+		for (const key in data) {
+			const value = data[key];
+			if (typeof value == "string") {
+				form.append(key, value);
+			} else if (typeof value == "object") (
+				form.append(key, JSON.stringify(value))
+			)
+		}
+	}
+	return form.data.join("&");
+}
+
 const chatNode = {
 	logbox: document.querySelector(".logbox"),
 	typebox: (document.querySelector(".chatmsg") as HTMLTextAreaElement),
 	add: {
-		message: function (message:string, sender:author) {
+		message(message:string, sender:author) {
 			const pclass = `${sender}msg`;
 			const user = sender == "you" ? "You" : "Stranger";
 			createChild(".logbox", {
@@ -104,7 +134,7 @@ const chatNode = {
 			});
 		},
 		status: {
-			default: function (text:string) {
+			default(text:string) {
 				createChild(".logbox",{
 					tag: "div",
 					args: {
@@ -120,10 +150,10 @@ const chatNode = {
 				});
 				chatNode.scroll();
 			},
-			connected: function () {
+			connected() {
 				chatNode.add.status.default("You're now chatting with a random stranger.");
 			},
-			typing: function () {
+			typing() {
 				createChild(".logbox",{
 					tag: "div",
 					args: {
@@ -140,7 +170,7 @@ const chatNode = {
 				stats.typing = true;
 				chatNode.scroll();
 			},
-			likes: function (likes:string[]) {
+			likes(likes:string[]) {
 				let display:string;
 				if (likes.length < 0) {
 					display = "Couldn't find a stranger with same interests.";
@@ -158,18 +188,28 @@ const chatNode = {
 			},
 		},
 	},
-	remove: function () {
+	clear() {
 		clearChilds(".logbox");
 	},
-	scroll: function () {
+	scroll() {
 		chatNode.logbox.scroll(0, chatNode.logbox.scrollHeight);
+	},
+	handleInput() {
+		const contents = chatNode.typebox.value;
+		if (contents[0] == "/") {
+			chatNode.typebox.value = "";
+		} else if (stats.connected && contents != "") {
+			backend.sendEncodedPOST("send", {msg: chatNode.typebox.value})
+			chatNode.add.message(chatNode.typebox.value, "you");
+			chatNode.typebox.value = "";
+		}
 	}
 };
 
 const disconnectNode = {
 	txt: document.querySelector(".dscnttxt"),
 	btn: document.querySelector(".dscntbtn"),
-	set: function (text:dStatus) {
+	set(text:dStatus) {
 		switch (text) {
 			case "stop":
 				disconnectNode.btn.className = "dscntbtn stop";
@@ -187,7 +227,7 @@ const disconnectNode = {
 				break;
 		}
 	},
-	handler: function () {
+	handler() {
 		switch (disconnectNode.btn.classList[1]) {
 			case "stop":
 				disconnectNode.set("rlly")
@@ -200,7 +240,7 @@ const disconnectNode = {
 
 			case "new":
 				disconnectNode.set("stop");
-				backend.video_chat();
+				newChat();
 				break;
 		}
 	}
@@ -212,20 +252,12 @@ const videoNode = {
 };
 
 const spinnerNode = {
-	add: function () {
+	add() {
 		createChild("#videowrapper", {tag: "div", args:{className:"spinner"}});
 	},
-	remove: function () {
-		document.querySelector(".spinner").remove();
+	remove() {
+		document.querySelector(".spinner")?.remove();
 	}
-}
-
-function encode(data:object) {
-	return encodeURIComponent(JSON.stringify(data));
-}
-
-function clearArray(array:any[]) {
-	return array.splice(0, array.length);
 }
 
 const stats = {
@@ -238,7 +270,7 @@ const stats = {
 		peer: false,
 		candidates:[]
 	},
-	reset: function () {
+	reset() {
 		stats.id = "";
 		stats.typing = false;
 		stats.connected = false;
@@ -254,18 +286,21 @@ const stats = {
 const settings = {
 	data: {
 		autoskip: false,
+		autoskip_delay: 500,
 		likes: ["lgbt", "lgbtq"],
+		lang: "en",
+		video: true
 	},
-	get: function () {
+	get() {
 		const item = JSON.parse(localStorage.getItem('settings'));
 		if (item) {
 			settings.data = item; 
 		}
 	},
-	save: function () {
+	save() {
 		localStorage.setItem('settings', JSON.stringify(settings.data));
 	},
-	clear: function () {
+	clear() {
 		localStorage.clear();
 	}
 };
@@ -277,179 +312,184 @@ const disconnectHandler = function (user:string) {
 		stats.connected = false;
 		spinnerNode.remove();
 	}
-}
+	if (settings.data.autoskip) {
+		setTimeout(() => {
+			newChat();
+		}, settings.data.autoskip_delay);
+	}
+};
 
 const keyboard = {
-	init: function () {
+	init() {
 		document.querySelector(".chatmsg").addEventListener("keydown",keyboard.handler.chatbox);
 		document.body.addEventListener("keydown",keyboard.handler.doc);
 	},
 	handler: {
-		doc: function (key:KeyboardEvent) {
+		doc(key:KeyboardEvent) {
 			if (key.code == "Escape") {
 				if (key.shiftKey && stats.connected) {
 					key.preventDefault();
 					backend.disconnect();
-					backend.video_chat();
+					newChat();
 				} else {
 					key.preventDefault();
 					disconnectNode.handler();
 				}
 			}
 		},
-		chatbox: function (key:KeyboardEvent) {
-			if (key.code == "Enter" && !key.shiftKey && stats.connected) {
+		chatbox(key:KeyboardEvent) {
+			if (key.code == "Enter" && !key.shiftKey) {
 				key.preventDefault();
-				backend.sendmsg();
+				chatNode.handleInput();
 			}
 		}
 	}
 };
 
 const backend = {
-	sendPOST: async function (path:string, data = "") {
-		const url = `https://${stats.server}.omegle.com/${path}`;
-		const id = encodeURIComponent(stats.id)
-		data = data == "" ? `id=${id}` : `id=${id}&${data}`;
-		return fetch(url, {
+	async sendPOST(path:string, data:string) {
+		return fetch(`https://${stats.server}.omegle.com/${path}`, {
 			method: 'POST',
 			body: data,
 			headers: {
 				"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-			}
+			},
+			referrerPolicy: "no-referrer"
 		});
 	},
-	sendmsg: function () {
-		if (stats.connected) {
-			if (chatNode.typebox.value == "") {return;}
-			backend.sendPOST("send", `msg=${encodeURIComponent(chatNode.typebox.value)}`)
-			chatNode.add.message(chatNode.typebox.value, "you");
-			chatNode.typebox.value = "";
-		}
+	sendEncodedPOST(path:string, data:object) {
+		return backend.sendPOST(path, encodeObjectAndAddID(data))
 	},
-	connect: (args:string[]) => fetch(`https://${stats.server}.omegle.com/start?${args.join("&")}`, { method: 'POST' }).then(response => response.json()),
-	disconnect: function () {
+	connect: (args:string[]) => fetch(`https://${stats.server}.omegle.com/start?${args.join("&")}`, { method: 'POST', referrerPolicy: "no-referrer" }).then(response => response.json()),
+	disconnect() {
 		disconnectHandler("You");
 		videoNode.othervideo.srcObject = null;
-		return backend.sendPOST("disconnect");
+		return backend.sendPOST("disconnect", "id=" + encodeURIComponent(stats.id));
 	},
-	video_chat: async function () {
-		const eventHandler = {
-			executer: async function (event) {
-				switch (event.name) {
-					case "rtccall":
-						stats.rtc.call = true;
-						descriptionHandler("Offer");
-						break;
-					case "rtcpeerdescription":
-						const answer = new RTCSessionDescription(event.data);
-						await pc.setRemoteDescription(answer)
-						stats.rtc.peer = true;
-						for (let i = 0; i < stats.rtc.candidates.length; i++) {
-							const signal = stats.rtc.candidates[i];
-							await pc.addIceCandidate(new RTCIceCandidate(signal));
-						}
-						stats.rtc.candidates.splice(0, stats.rtc.candidates.length)
-						if (!stats.rtc.call) {
-							descriptionHandler("Answer");
-						}
-						break;
-					case "icecandidate":
-						if (!stats.rtc.peer) {
-							stats.rtc.candidates.push(event.data);
-						} else {
-							pc.addIceCandidate(new RTCIceCandidate(event.data));
-						}
-						break;
-					case "gotMessage":
-						chatNode.add.message(event.data, "stranger");
-						break;
-					case "commonLikes":
-						chatNode.add.status.likes(event.data);
-						break;
-					case "connected":
-						stats.connected = true;
-						chatNode.add.status.connected();
-						break;
-					case "strangerDisconnected":
-						socket.close();
-						videoNode.othervideo.srcObject = null;
-						disconnectHandler("Stranger");
-						break;
-					case "waiting":
-						chatNode.add.status.default("Waiting");
-						break;
-					default:
-						console.log(event);
-						break;
-				}
-			},
-			parser: function (events) {
-				for (let i = 0; i < events?.length; i++) {
-					const event = {
-						name: events[i][0],
-						data: events[i][1]
-					};
-					eventHandler.executer(event);
-				}
-			}
-		};
-
-		const descriptionHandler = async function (option:pcOption) {
-			const session = await pc[`create${option}`](WEB_RTC_MEDIA_CONSTRAINTS);
-			await pc.setLocalDescription(session)
-			backend.sendPOST("rtcpeerdescription", `desc=${encode(session)}`);
-		};
-
-		stats.reset();
-
-		disconnectNode.set("stop");
-
-		chatNode.remove();
-		chatNode.typebox.value = "";
-		chatNode.add.status.default("Conneting to server");
-		spinnerNode.add();
-
-		const media = await navigator.mediaDevices.getUserMedia({ video: true, audio: { echoCancellation: true } });
-		videoNode.selfvideo.srcObject ??= media;
-		videoNode.selfvideo.muted = true;
-		
-		const pc = new RTCPeerConnection(WEB_RTC_CONFIG);
-
-		media.getTracks().forEach(function(track) {
-			pc.addTrack(track, media);
-		});
-
-		pc.ontrack = function (event) {
-			videoNode.othervideo.srcObject = event.streams[0];
-			spinnerNode.remove();
-		}
-		pc.onicecandidate = async function (event) {
-			await backend.sendPOST("icecandidate", `candidate=${encode(event.candidate)}`);
-			clearArray(stats.rtc.candidates);
-		}
-
-		const args = [
-			"caps=recaptcha2",
-			"firstevents=0",
-			"spid=",
-			"randid=4ALLVR8L", 
-			`topics=${encode(settings.data.likes)}`,
-			"lang=en",
-			"camera=Full%20HD%20webcam%20(0bda%3A58b0)",
-			"webrtc=1"
-		];
-		
-		const start = await backend.connect(args);
-		eventHandler.parser(start.events);
-		stats.id = start.clientID;
-
-		const socket = new WebSocket(`wss://${stats.server}.omegle.com/wsevents?id=${encodeURIComponent(start.clientID)}`);
-		socket.onmessage = function (rawevents) {
-			const events = JSON.parse(rawevents.data);
-			eventHandler.parser(events);
-		};
+	events() {
+		return new WebSocket(`wss://${stats.server}.omegle.com/wsevents?id=${encodeURIComponent(stats.id)}`);
 	}
 };
 
 keyboard.init();
+
+const newChat = async function () {
+	const eventHandler = {
+		executer: async function (event:backendEvent) {
+			switch (event.name) {
+				case "rtccall":
+					stats.rtc.call = true;
+					descriptionHandler("Offer");
+					break;
+				case "rtcpeerdescription":
+					const answer = new RTCSessionDescription(event.data);
+					await pc.setRemoteDescription(answer)
+					stats.rtc.peer = true;
+					for (let i = 0; i < stats.rtc.candidates.length; i++) {
+						const signal = stats.rtc.candidates[i];
+						await pc.addIceCandidate(new RTCIceCandidate(signal));
+					}
+					stats.rtc.candidates.splice(0, stats.rtc.candidates.length)
+					if (!stats.rtc.call) {
+						descriptionHandler("Answer");
+					}
+					break;
+				case "icecandidate":
+					if (!stats.rtc.peer) {
+						stats.rtc.candidates.push(event.data);
+					} else {
+						pc.addIceCandidate(new RTCIceCandidate(event.data));
+					}
+					break;
+				case "gotMessage":
+					chatNode.add.message(event.data, "stranger");
+					break;
+				case "commonLikes":
+					chatNode.add.status.likes(event.data);
+					break;
+				case "connected":
+					stats.connected = true;
+					chatNode.add.status.connected();
+					break;
+				case "strangerDisconnected":
+					socket.close();
+					videoNode.othervideo.srcObject = null;
+					disconnectHandler("Stranger");
+					break;
+				case "waiting":
+					chatNode.add.status.default("Waiting");
+					break;
+				default:
+					console.log(event);
+					break;
+			}
+		},
+		parser(events:object[]) {
+			for (let i = 0; i < events?.length; i++) {
+				const event = {
+					name: events[i][0],
+					data: events[i][1]
+				};
+				eventHandler.executer(event);
+			}
+		}
+	};
+
+	const descriptionHandler = async function (option:pcOption) {
+		const session = await pc[`create${option}`](WEB_RTC_MEDIA_CONSTRAINTS);
+		await pc.setLocalDescription(session)
+		backend.sendPOST("rtcpeerdescription", encodeObjectAndAddID({desc: session}));
+	};
+
+	stats.reset();
+
+	disconnectNode.set("stop");
+
+	chatNode.clear();
+	chatNode.typebox.value = "";
+	chatNode.add.status.default("Conneting to server");
+	spinnerNode.add();
+
+	const media = await navigator.mediaDevices.getUserMedia({ video: true, audio: { echoCancellation: true } });
+	videoNode.selfvideo.srcObject ??= media;
+	videoNode.selfvideo.muted = true;
+	
+	const pc = new RTCPeerConnection(WEB_RTC_CONFIG);
+
+	media.getTracks().forEach(function(track) {
+		pc.addTrack(track, media);
+	});
+
+	pc.ontrack = function (event) {
+		videoNode.othervideo.srcObject = event.streams[0];
+		spinnerNode.remove();
+	}
+	pc.onicecandidate = async function (event) {
+		if (pc.iceGatheringState != "complete") {
+			await backend.sendEncodedPOST("icecandidate", {candidate: event.candidate});
+			clearArray(stats.rtc.candidates);
+		}
+	}
+
+	const args = [
+		"caps=recaptcha2",
+		"firstevents=0",
+		"spid=",
+		"randid=4ALLVR8L", 
+		`topics=${encodeURIComponent(JSON.stringify(settings.data.likes))}`,
+		`lang=${settings.data.lang}`,
+		`webrtc=${Number(settings.data.video)}`
+	];
+	
+	const start = await backend.connect(args);
+	eventHandler.parser(start.events);
+	stats.id = start.clientID;
+
+	backend.events();
+
+	const socket = backend.events();
+	socket.onmessage = function (rawevents) {
+		const events = JSON.parse(rawevents.data);
+		eventHandler.parser(events);
+	};
+}
