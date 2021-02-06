@@ -1,0 +1,419 @@
+:root {
+	--cheight: calc(100% - 89px - 8px);
+	--dheight: calc((100% - 89px) / 2);
+}
+
+html {
+	height: 100%
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	margin: 0;
+	padding: 0;
+	background: #FFF7EE;
+	height: 100%;
+}
+
+#flex-tape {
+	display: flex;
+	flex-direction: row;
+	height: var(--cheight);
+	margin-bottom: 8px;
+}
+
+.video {
+	width: 566px;
+	min-width: 400px;
+	margin-left: 8px;
+}
+
+.chat {
+	height: 100%;
+	max-width: 70.5%;
+	margin-left: 8px;
+	margin-right: 8px;
+	flex-grow: 1;
+}
+
+#controllbox {
+	display: flex;
+	flex-direction: row;
+}
+
+.chat .logwrapper {
+	border-top-left-radius: 0;
+}
+
+.chat .disconnectbtnwrapper {
+	border-bottom-left-radius: 0;
+}
+
+*:not(.chat) > #chatbox {
+	margin-right: 8px;
+	margin-left: 8px;
+	margin-bottom: 8px;
+	margin-top: 16px;
+}
+
+.logwrapper {
+	flex-grow: 1;
+	margin-bottom: 8px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	border-top-left-radius: 0.5em;
+	border-top-right-radius: 0.5em;
+	background: #fff;
+}
+
+.dscntbtn {
+	width: 7.1em;
+	font-size: 1em;
+	border: 1px solid #ccc;
+	background: #fff;
+	margin-right: 8px;
+}
+
+.dscntbtn.new {
+    background: #409ffe;
+    background-image: linear-gradient(top,#80c0ff 0,#017ffe 100%);
+    color: #fff
+}
+
+.dscntkey {
+	font-size: 0.8em;
+	color: #9cf;
+	font-weight: 700;
+	margin-top: 0.25em;
+	height: 0;
+	overflow: show;
+}
+
+.dscnttxt {
+	margin: 0;
+	margin-top: 6px;
+}
+
+.new .dscnttxt, .rlly .dscnttxt {
+	font-weight: 700;
+}
+
+.sendbtnwrapper {
+	overflow: hidden;
+	margin-left: 0.5em;
+	border: 1px solid #ccc;
+	border-bottom-right-radius: 0.5em;
+}
+
+.sendbtn {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 1em;
+	background: #fff;
+	width: 7em;
+	height: 5em;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+	border-bottom-right-radius: 0.5em;
+}
+
+.chatmsg {
+	resize: none;
+	width: 100%;
+	background: #fff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 1em;
+	border: 0 none;
+	padding: 0;
+	margin: 0;
+	height: 4.5em;
+	font-size: 1em;
+	overflow: auto;
+	border-radius: 0;
+}
+
+.chatmsgwrapper {
+	flex-grow: 1;
+	background: #fff;
+	border: 1px solid #ccc;
+	height: 4.5em;
+	padding: 0.25em;
+}
+
+#selfvideo, #othervideo {
+	flex-grow: 1;
+	background: #555;
+	object-fit: cover;
+	height: var(--dheight);
+}
+
+#othervideo {
+	margin-bottom: 4px;
+	border-top-left-radius: 0.5em;
+}
+
+#selfvideo {
+	margin-top: 4px;
+	border-bottom-left-radius: 0.5em;
+}
+
+#videowrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	height: 100%;
+}
+
+#chatbox {
+	height: inherit;
+	display: flex;
+	flex-direction: column;
+}
+
+#header {
+	height: 57px;
+	padding: 8px;
+	margin-bottom: 16px;
+	background-color: white;
+	box-shadow: 0 .25em .75em #CCC;
+}
+
+#logo {
+	margin: 0;
+	padding: 0;
+	float: left;
+	font-size: 1em;
+	margin-left: 0.5em;
+	margin-right: 5em;
+}
+
+#onlinecount {
+	font-size: 1.5em;
+	color: #9cf;
+	text-align: right;
+}
+
+#onlinecount strong {
+	font-size: 1.3333333333333333333333em;
+	color: #6cb5ff;
+}
+
+img {
+	border: 0 none;
+}
+
+.logbox {
+	padding: 8px;
+	overflow: auto;
+}
+
+.logbox p {
+	margin-bottom: 0.5em;
+	margin-top: 0;
+}
+
+.controlwrapper {
+	position: absolute;
+	bottom: 0.5em;
+	left: 0.5em;
+	right: 0.5em;
+	height: 5em;
+	padding-bottom: 2px;
+}
+
+.disconnectbtnwrapper.newbtn {
+	background: #409ffe;
+	background-image: linear-gradient(top, #80c0ff 0, #017ffe 100%);
+	color: #fff;
+}
+
+.newbtn .disconnectbtn {
+	color: #fff;
+	font-weight: 700;
+}
+
+.reallybtn .disconnectbtn {
+	font-weight: 700;
+}
+
+.chatmsgcell {
+	width: 100%;
+}
+
+@keyframes msgfade {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+.youmsg, .strangermsg {
+	margin: 0;
+	padding: 0;
+	animation: msgfade 0.25s ease-out forwards;
+}
+
+.youmsg .msgsource {
+	color: #00f;
+	font-weight: 700;
+}
+
+.strangermsg .msgsource {
+	color: red;
+	font-weight: 700;
+}
+
+.statuslog {
+	color: #555;
+	font-size: 0.9em;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+	animation: msgfade 0.25s ease-out forwards;
+}
+
+.logtopicsettings {
+	animation: msgfade 0.25s ease-out forwards;
+}
+
+textarea:focus {
+	outline: 0;
+}
+
+.controlwrapper {
+	margin-right: 0;
+}
+
+#chatbtnwrapper {
+	padding-bottom: 0.7em;
+	text-align: center;
+}
+
+#chatbtn {
+	display: block;
+	margin: auto;
+}
+
+
+#videobtn.disabled {
+	cursor: default;
+}
+
+#videobtnstatus, #textbtnstatus {
+	height: 2.5em;
+	color: #aaa;
+	font-size: 0.7em;
+}
+
+.btnkbshortcut {
+	font-size: 0.8em;
+	color: #9cf;
+	font-weight: 700;
+	margin-top: 0.25em;
+	height: 0;
+	overflow: show;
+}
+
+:disabled .btnkbshortcut,
+[disabled] .btnkbshortcut {
+	color: #a1c3e6;
+}
+
+.shoulduselikesdiv {
+	clear: left;
+	margin-top: 0.5em;
+}
+
+.commonlikescancel {
+	padding-top: 0.5em;
+	font-size: 0.75em;
+}
+
+.topictageditor {
+	background: #fff;
+	cursor: text;
+	border: 1px solid #ccc;
+	position: relative;
+	padding: 0.25em;
+	margin-bottom: 0.408em;
+	text-align: left;
+}
+
+#chatbox .topictageditor {
+	margin-right: 0.5em;
+}
+
+.topictag {
+	cursor: default;
+	background: #6cb5ff;
+	border-radius: 0.25em;
+	padding: 0.25em;
+	margin: 0 0.25em;
+	line-height: 2;
+	white-space: nowrap;
+}
+
+.topictagdelete {
+	cursor: pointer;
+	cursor: hand;
+	padding-left: 0.25em;
+	cursor: default;
+	font-weight: 700;
+	vertical-align: bottom;
+}
+
+.newtopicinput {
+	border: 0 none;
+	padding: 0;
+	width: 50%;
+	outline: 0 none !important;
+	font-size: 1em;
+	font-family: inherit;
+	border-radius: 0;
+	cursor: text;
+	background: transparent;
+}
+
+.topicplaceholder {
+	color: #aaa;
+	cursor: text;
+	position: absolute;
+	padding-left: 1px;
+}
+
+#topicsettingscell {
+	vertical-align: top;
+}
+
+#topicsettingscontainer {
+	width: 400px;
+	max-width: 100%;
+	margin: auto;
+	text-align: left;
+}
+
+#footer {
+	padding-top: 0-p;
+	margin-right: 176px;
+}
+
+@keyframes spinner {
+	to {transform: rotate(360deg);}
+}
+
+.spinner:before {
+	content: '';
+	box-sizing: border-box;
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	border-top: 2px solid white;
+	border-right: 2px solid transparent;
+	animation: spinner .6s linear infinite;
+	left: 222px;
+	top: 230px;
+}
