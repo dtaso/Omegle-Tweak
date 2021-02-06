@@ -1,2 +1,5 @@
 .vscode/
 output/
+index.js
+*.tsbuildinfo
+favicon.png
