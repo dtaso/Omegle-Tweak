@@ -58,7 +58,6 @@ newItem.innerHTML = /* html */`
 	</div>	
 	`;
 $("header").appendChild(newItem);
-$("onlinecount").style.position = "absolute";
-$("onlinecount").style.bottom = "18px";
+$("onlinecount").dispose();
 $('sharebuttons').dispose();
 $("footer").dispose();
