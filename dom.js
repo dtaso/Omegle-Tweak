@@ -22,8 +22,8 @@ let chat = startNewChat.toString();
 chat = chat.substring(35);
 chat = chat.substring(0, chat.length - 1);
 chat = chat.replace(reg, string);
-startNewChat = new Function (["a","b","c","e","f"], chat);
-setShouldUseEnglish(true);
+startNewChat = new Function(["a", "b", "c", "e", "f"], chat);
+setShouldUseEnglish(false);
 const newItem = document.createElement("div");
 newItem.innerHTML = /* html */`
 	<div style="width: 400px;height: 20px;margin-top: 7px;margin-right: auto;margin-bottom: auto;margin-left: auto;"> 
@@ -61,5 +61,4 @@ $("header").appendChild(newItem);
 $("onlinecount").style.position = "absolute";
 $("onlinecount").style.bottom = "18px";
 $('sharebuttons').dispose();
-$('tagline').dispose();
 $("footer").dispose();
