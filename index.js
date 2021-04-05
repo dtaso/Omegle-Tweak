@@ -315,7 +315,6 @@ const dom = {
 		Region: ${info.region} <br/>
 		Country: ${info.country} <br/>
 		ISP: ${info.org} <br/>
-		VPN: ${info.vpn} <br/>
 		<div id="time${info.ip}">Time: ${info.time}</div>
 		Timezone: ${info.timezone} <br/>
 		Source: ${info.time_source} <br/>
