@@ -61,14 +61,14 @@ const api = {
         const location_data = await api.fetch_json(`${location_api}${ip}`);
         const vpn_data = await api.cors_proxy(`${vpn_api}${ip}`);
         const time_data = await api.time.fetch(ip, time_api, location_data.timezone_gmtOffset);
-        const vpn = vpn_data.security.vpn || vpn_data.security.proxy || vpn_data.security.tor;
+//         const vpn = vpn_data.security.vpn || vpn_data.security.proxy || vpn_data.security.tor;
         const data = {
             ip: ip,
             city: location_data.city,
             region: location_data.region,
             country: location_data.country,
             org: location_data.org,
-            vpn: vpn,
+//             vpn: vpn,
             time: time_data.datetime.match(/[0-9]{2}:[0-9]{2}:[0-9]{2}/)[0],
             timezone: time_data.utc_offset || location_data.timezone_gmt.replace("GMT", "UTC"),
             timezone_short: time_data.abbreviation,
