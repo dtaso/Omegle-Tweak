@@ -10,9 +10,9 @@
 
 (function() {
 	const dom = document.createElement('script');
-	dom.src = 'https://cdn.jsdelivr.net/gh/PWalll/omegle-tweak@0.1/dom.js';
+	dom.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak/dom.js';
 	document.head.appendChild(dom);
 	const index = document.createElement('script');
-	index.src = 'https://cdn.jsdelivr.net/gh/PWalll/omegle-tweak@0.1/index.js';
+	index.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak/index.js';
 	document.head.appendChild(index);
 })();
