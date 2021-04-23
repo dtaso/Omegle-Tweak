@@ -57,18 +57,14 @@ const api = {
     fetch: async function (ip) {
         const location_api = "https://ipwhois.app/json/";
         const time_api = "https://worldtimeapi.org/api/ip/";
-        const vpn_api = "https://vpnapi.io/api/";
         const location_data = await api.fetch_json(`${location_api}${ip}`);
-        const vpn_data = await api.cors_proxy(`${vpn_api}${ip}`);
         const time_data = await api.time.fetch(ip, time_api, location_data.timezone_gmtOffset);
-        const vpn = vpn_data.security.vpn || vpn_data.security.proxy || vpn_data.security.tor;
         const data = {
             ip: ip,
             city: location_data.city,
             region: location_data.region,
             country: location_data.country,
             org: location_data.org,
-            vpn: vpn,
             time: time_data.datetime.match(/[0-9]{2}:[0-9]{2}:[0-9]{2}/)[0],
             timezone: time_data.utc_offset || location_data.timezone_gmt.replace("GMT", "UTC"),
             timezone_short: time_data.abbreviation,
@@ -315,7 +311,6 @@ const dom = {
 		Region: ${info.region} <br/>
 		Country: ${info.country} <br/>
 		ISP: ${info.org} <br/>
-		VPN: ${info.vpn} <br/>
 		<div id="time${info.ip}">Time: ${info.time}</div>
 		Timezone: ${info.timezone} <br/>
 		Source: ${info.time_source} <br/>
