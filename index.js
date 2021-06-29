@@ -29,7 +29,8 @@ async function main(ip) {
     if (ips.history[ips.history.length - 1] == ip) {
         return;
     }
-    if (!check_ip(ip)) {
+    var isIpBlocked = await check_ip_is_blocked(ip);
+    if (isIpBlocked) {
         return;
     }
     const info = await api.fetch(ip);
@@ -38,20 +39,22 @@ async function main(ip) {
     time.connection_time(ip);
     time.peers_time(info.time, ip);
 }
-function check_ip(ip) {
-    const checkBox = document.querySelector("#banhistory").checked;
-    if (ips.blacklist.some(ips => ips == ip)) {
-        banskip++;
-        dclick.new_connection();
-        return false;
-    }
-    else if (checkBox && ips.history.some(ips => ips == ip) && !ips.whitelist.some(ips => ips == ip)) {
-        twiceskip++;
-        dclick.new_connection();
-        return false;
-    }
-    ips.history.push(ip);
-    return true;
+ function check_ip_is_blocked(ip) {
+     return new Promise(resolve => {
+         const checkBox = document.querySelector("#banhistory").checked;
+         if (ips.blacklist.some(ips => ips == ip)) {
+             banskip++;
+             dclick.new_connection();
+             resolve(true);
+         }
+         else if (checkBox && ips.history.some(ips => ips == ip) && !ips.whitelist.some(ips => ips == ip)) {
+             twiceskip++;
+             dclick.new_connection();
+             resolve(true);
+         }
+         ips.history.push(ip);
+         resolve(false);
+     });
 }
 const api = {
     fetch: async function (ip) {
