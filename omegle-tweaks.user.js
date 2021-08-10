@@ -8,11 +8,11 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
 	const dom = document.createElement('script');
-	dom.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak@v1.04/dom.js';
+	dom.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak@v1.05/dom.js';
 	document.head.appendChild(dom);
 	const index = document.createElement('script');
-	index.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak@v1.04/index.js';
+	index.src = 'https://cdn.jsdelivr.net/gh/dtaso/omegle-tweak@v1.05/index.js';
 	document.head.appendChild(index);
 })();

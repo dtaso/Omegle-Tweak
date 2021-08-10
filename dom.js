@@ -22,8 +22,8 @@ let chat = startNewChat.toString();
 chat = chat.substring(35);
 chat = chat.substring(0, chat.length - 1);
 chat = chat.replace(reg, string);
-startNewChat = new Function (["a","b","c","e","f"], chat);
-setShouldUseEnglish(false);
+startNewChat = new Function(["a", "b", "c", "e", "f"], chat);
+setShouldUseEnglish(true);
 const newItem = document.createElement("div");
 newItem.innerHTML = /* html */`
 	<div style="width: 400px;height: 20px;margin-top: 7px;margin-right: auto;margin-bottom: auto;margin-left: auto;"> 
@@ -45,10 +45,10 @@ newItem.innerHTML = /* html */`
 			.slider.round:before { border-radius: 50%; }
 		</style>
 		<label class="switch" style=" position: absolute; margin-top: 4px; margin-left: 3px; "> 
-			<input type="checkbox" id="banhistory" checked> 
+			<input type="checkbox" id="setLang" checked onclick="setLang();"> 
 			<span class="slider round"></span>
 		</label>
-		<div style="position: absolute; margin-left: 38px;">No same person twice</div>
+		<div style="position: absolute; margin-left: 38px;">Should use english?</div>
 		
 	</div>
 	<div style="position: absolute;width: 200px;right: 260px;top: 0px;color: #9CF;font-size: 1.1em;">

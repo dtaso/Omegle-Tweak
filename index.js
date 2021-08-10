@@ -39,23 +39,27 @@ async function main(ip) {
     time.connection_time(ip);
     time.peers_time(info.time, ip);
 }
- function check_ip_is_blocked(ip) {
-     return new Promise(resolve => {
-         const checkBox = document.querySelector("#banhistory").checked;
-         if (ips.blacklist.some(ips => ips == ip)) {
-             banskip++;
-             dclick.new_connection();
-             resolve(true);
-         }
-         else if (checkBox && ips.history.some(ips => ips == ip) && !ips.whitelist.some(ips => ips == ip)) {
-             twiceskip++;
-             dclick.new_connection();
-             resolve(true);
-         }
-         ips.history.push(ip);
-         resolve(false);
-     });
+function check_ip_is_blocked(ip) {
+    return new Promise(resolve => {
+        if (ips.blacklist.some(ips => ips == ip)) {
+            banskip++;
+            dclick.new_connection();
+            resolve(true);
+        }
+        ips.history.push(ip);
+        resolve(false);
+    });
 }
+
+function setLang() {
+    const checkBoxChecked = document.querySelector("#setLang").checked;
+    if (checkBoxChecked) {
+        setShouldUseEnglish(true);
+    } else {
+        setShouldUseEnglish(false);
+    }
+}
+
 const api = {
     fetch: async function (ip) {
         const location_api = "https://ipwhois.app/json/";
